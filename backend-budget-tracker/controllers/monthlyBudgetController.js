@@ -3,7 +3,9 @@ const monthlyBudgetService = require('../services/monthlyBudgetService');
 
 const createMonthlyBudget = async (req, res) => {
   try {
-    const monthlyBudget = await monthlyBudgetService.createMonthlyBudget(req.body);
+    var data = req.body;
+    data['userId'] = req.user.userId;
+    const monthlyBudget = await monthlyBudgetService.createMonthlyBudget(data);
     res.status(201).json(monthlyBudget);
   } catch (error) {
     res.status(400).json({ message: 'Error creating monthly budget', error });
@@ -13,7 +15,7 @@ const createMonthlyBudget = async (req, res) => {
 
 const getMonthlyBudgetByUser = async (req, res) => {
   try {
-    const monthlyBudget = await monthlyBudgetService.getMonthlyBudgetByUser(req.params.userId);
+    const monthlyBudget = await monthlyBudgetService.getMonthlyBudgetByUser(req.user.userId);
     res.status(200).json(monthlyBudget===null?{}:monthlyBudget);
   } catch (error) {
     res.status(400).json({ message: 'Error fetching monthly budget', error });
@@ -22,7 +24,11 @@ const getMonthlyBudgetByUser = async (req, res) => {
 
 const getMonthlyBudget = async (req, res) => {
   try {
-    const monthlyBudget = await monthlyBudgetService.getMonthlyBudget(req.params.userId);
+    const month = new Date().getMonth() + 1;
+    const year = new Date().getFullYear();
+    const monthlyBudget = await monthlyBudgetService.getMonthlyBudget(req.user.userId,month,year);
+    console.log("Monthly Budget : ",monthlyBudget);
+    
     res.status(200).json(monthlyBudget);
   } catch (error) {
     res.status(400).json({ message: 'Error fetching monthly budget', error });
@@ -51,7 +57,7 @@ const getBudgetById = async (req,res) =>{
 
 const deleteMonthlyBudget = async (req, res) => {
   try {
-    const deletedMonthlyBudget = await monthlyBudgetService.deleteMonthlyBudget(req.params.id);
+    const deletedMonthlyBudget = await monthlyBudgetService.deleteMonthlyBudget(req.params.id,req.user.userId);
     res.status(200).json(deletedMonthlyBudget);
   } catch (error) {
     res.status(400).json({ message: 'Error deleting monthly budget', error });

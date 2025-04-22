@@ -6,14 +6,14 @@ const createTransaction = async (req, res) => {
     const data = req.body;
 
     // Try finding the existing category first
-    let curCategory = await category.findCategory(data.categoryName, data.categoryType, data.userId);
+    let curCategory = await category.findCategory(data.categoryName, data.categoryType,req.user.userId);
 
     // If category doesn't exist, create it
     if (!curCategory) {
       curCategory = await category.createCategory({
         name: data.categoryName,
         type: data.categoryType,
-        userId: data.userId,
+        userId: req.user.userId,
       });
     }
 
@@ -21,7 +21,7 @@ const createTransaction = async (req, res) => {
       amount: data.amount,
       date: data.date,
       categoryId: curCategory._id,
-      userId: data.userId,
+      userId: req.user.userId,
     };
 
 
@@ -36,7 +36,7 @@ const createTransaction = async (req, res) => {
 
 const getTransactionsByUser = async (req, res) => {
   try {
-    const transactions = await transactionService.getTransactionsByUser(req.params.userId);
+    const transactions = await transactionService.getTransactionsByUser(req.user.userId);
     res.status(200).json(transactions);
   } catch (error) {
     res.status(400).json({ message: 'Error fetching transactions', error });
@@ -56,7 +56,7 @@ const updateTransaction = async (req, res) => {
 
 const deleteTransaction = async (req, res) => {
   try {
-    const deletedTransaction = await transactionService.deleteTransaction(req.params.id);
+    const deletedTransaction = await transactionService.deleteTransaction(req.params.id,req.user.userId);
     res.status(200).json({ message : 'Deleted the transaction successfully'});
   } catch (error) {
     res.status(400).json({ message: 'Error deleting transaction', error });

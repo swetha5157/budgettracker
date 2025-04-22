@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const monthlyBudgetController = require('../controllers/monthlyBudgetController');
+const authMiddleware = require('../auth/auth');
 
-router.post('/', monthlyBudgetController.createMonthlyBudget);
-router.get('/:userId', monthlyBudgetController.getMonthlyBudgetByUser);
-router.get('/monthly/:userId', monthlyBudgetController.getMonthlyBudget);
-router.put('/:id', monthlyBudgetController.updateMonthlyBudget);
-router.delete('/:id', monthlyBudgetController.deleteMonthlyBudget);
-router.get('/get/:id',monthlyBudgetController.getBudgetById);
+router.post('/', authMiddleware,monthlyBudgetController.createMonthlyBudget);
+router.get('/', authMiddleware,monthlyBudgetController.getMonthlyBudgetByUser);
+router.get('/monthly',authMiddleware, monthlyBudgetController.getMonthlyBudget);
+router.put('/:id', authMiddleware,monthlyBudgetController.updateMonthlyBudget);
+router.delete('/:id',authMiddleware, monthlyBudgetController.deleteMonthlyBudget);
+router.get('/get/:id',authMiddleware,monthlyBudgetController.getBudgetById);
 
 module.exports = router;

@@ -13,8 +13,8 @@ const getCategoryById = async (categoryId) => {
   return await Category.findById(categoryId);
 };
 
-const findCategory = async(name,type) => {
-  return await Category.findOne({name,type});
+const findCategory = async(name,type,userId) => {
+  return await Category.findOne({name,type,userId});
 };
 
 const updateCategory = async (categoryId, data) => {
