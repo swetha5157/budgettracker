@@ -5,7 +5,7 @@ const budgetSlice = createSlice({
     initialState : { 
         budget : {
             allBudget : [],
-            curBudget : {},
+            curBudget : null,
             isAll : true
         }
     },

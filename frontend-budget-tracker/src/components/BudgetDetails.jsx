@@ -28,7 +28,7 @@ const BudgetDetails = () => {
       try {
         const [budgetRes, catData] = await Promise.all([
           getBudgetById(id),
-          getCategory('65f025cfc3c561182e843dc0'),
+          getCategory(),
         ]);
         console.log(budgetRes.data);
         
@@ -47,16 +47,22 @@ const BudgetDetails = () => {
   };
 
   const handleSaveClick = async () => {
-    var updatedCategories = [...budget.categories];
+    // deep copy to avoid modifying read-only objects
+    var updatedCategories = budget.categories.map((cat) => ({
+      ...cat,
+      allocatedAmount: cat.allocatedAmount,
+      category: { ...cat.category },
+    }));
+  
     updatedCategories[editingIndex].allocatedAmount = editedAmount;
-
+  
     try {
       await updateBudgetById(id, {
         ...budget,
-        totalIncome :  updatedCategories.reduce((sum, item) => {
+        totalIncome: updatedCategories.reduce((sum, item) => {
           return item.category.type !== "Expense" ? sum + Number(item.allocatedAmount) : sum;
         }, 0),
-        totalExpense :  updatedCategories.reduce((sum, item) => {
+        totalExpense: updatedCategories.reduce((sum, item) => {
           return item.category.type === "Expense" ? sum + Number(item.allocatedAmount) : sum;
         }, 0),
         categories: updatedCategories.map((cat) => ({
@@ -64,14 +70,21 @@ const BudgetDetails = () => {
           allocatedAmount: cat.allocatedAmount,
         })),
       });
-      setBudget({...budget, categories: updatedCategories });
-      if(isAll) dispatch(updateAllBudget({ ...budget, categories: updatedCategories }));
-      else dispatch(initCurBudget({...budget, categories: updatedCategories }));
+  
+      setBudget({ ...budget, categories: updatedCategories });
+  
+      if (isAll) {
+        dispatch(updateAllBudget({ ...budget, categories: updatedCategories }));
+      } else {
+        dispatch(initCurBudget({ ...budget, categories: updatedCategories }));
+      }
+  
       setEditingIndex(null);
     } catch (err) {
-      console.error('Failed to update', err);
+      console.error("Failed to update", err);
     }
   };
+  
 
   const handleDelete = async (index) => {
     const updatedCategories = [...budget.categories];
@@ -110,8 +123,7 @@ const BudgetDetails = () => {
       try {
         const response = await addCategories({
           name: category,
-          type,
-          userId: '65f025cfc3c561182e843dc0',
+          type
         });
         dispatch(addCategory(response.data));
         return response.data
@@ -128,10 +140,7 @@ const BudgetDetails = () => {
     // Fetch actual category name from ID
     const lowerCaseCategory = category.toLowerCase();
 
-    const isAlreadyExist = updatedCategories.some((data) => {
-      const catObj = allCategories.find((c) => c._id === data.category);
-      return catObj && catObj.name.toLowerCase() === lowerCaseCategory;
-    });
+    const isAlreadyExist = budget.categories.some(data=>data.category.name.toLowerCase()===category.toLowerCase());
 
     if (isAlreadyExist) {
       alert(`The category "${category}" is already present in the budget.`);

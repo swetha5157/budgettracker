@@ -46,8 +46,7 @@ const CreateBudget = () => {
         try {
           const response = await addCategories({
             name : data.name,
-            type : data.type,
-            userId: "65f025cfc3c561182e843dc0"
+            type : data.type
           });
           dispatch(addCategory(response.data));
           return {
@@ -76,7 +75,6 @@ const CreateBudget = () => {
       }, 0),
       year,
       categories: resolvedCategories,
-      userId : "65f025cfc3c561182e843dc0"
     };
 
     try {
@@ -110,7 +108,7 @@ const CreateBudget = () => {
   const getcurCategories = async()=>{
       try {
 
-        const response = await getCategory("65f025cfc3c561182e843dc0");
+        const response = await getCategory();
         dispatch(initCategory(response.data));
         console.log(response.data);
       } catch (error) {

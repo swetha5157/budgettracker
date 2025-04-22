@@ -7,7 +7,6 @@ const headers = {
     "Authorization": `Bearer ${localStorage.getItem('token')}`
   }
 }
-
-export const addCategories = async(data)=>{
-    return axios.post(`${base}/api/categories`,data,headers);
+export const analysis = async(month,year)=>{
+    return await axios.get(`${base}/api/ai?month=${month}&year=${year}`,headers);
 }

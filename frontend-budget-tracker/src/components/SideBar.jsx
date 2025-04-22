@@ -14,7 +14,6 @@ const navLinks = [
   { name: "Budgets", path: "/main/budgets", icon: Wallet },
   { name: "Reports", path: "/main/reports", icon: BarChart },
   { name: "Export Data", path: "/main/export", icon: Download },
-  { name: "Update Profile", path: "/main/profile", icon: UserCog },
 ];
 
 const Sidebar = ({ isCollapsed, isMobileOpen, toggleSidebar, closeMobile }) => {

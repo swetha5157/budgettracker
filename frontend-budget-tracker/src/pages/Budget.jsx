@@ -16,7 +16,7 @@ const Budget = () => {
 
   const fetchAllBudget = async()=>{
     try {
-      const response = await getAllBudget("65f025cfc3c561182e843dc0");
+      const response = await getAllBudget();
       dispatch(initAllBudget(response.data));
       
     } catch (error) {
@@ -26,8 +26,10 @@ const Budget = () => {
 
   const fetchCurrentDateBudget = async()=>{
     try {
-      const response = await getMonthlyBudget("65f025cfc3c561182e843dc0");
+      const response = await getMonthlyBudget();
       dispatch(initCurBudget(response.data));
+      console.log(response , "api response");
+      
       setBudgetTotal(response.data.totalIncome);
       setBudgetLeft(response.data.totalIncome - response.data.totalExpense)
       

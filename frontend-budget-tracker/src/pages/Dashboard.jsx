@@ -1,90 +1,133 @@
-import React, { useEffect, useState } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line
-} from 'recharts';
-import axios from 'axios';
-import { getAllBudget } from '../Service/BudgetService';
+import React, { useEffect, useState } from "react";
+import { getAllBudget } from "../Service/BudgetService";
+import { initAllBudget } from "../Redux/BudgetSlice";
+import { analysis } from "../Service/AIService";
 
 const Dashboard = () => {
-  const [budgetData, setBudgetData] = useState([]);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
+  const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const [availableBudget,setAvailableBudget] = useState([]);
+
+  const [analysisData, setAnalysisData] = useState(null);
+  const [selected, setSelected] = useState({ month: null, year: null });
+
+  const months = [
+    { name: "January", value: 1 },
+    { name: "February", value: 2 },
+    { name: "March", value: 3 },
+    { name: "April", value: 4 },
+    { name: "May", value: 5 },
+    { name: "June", value: 6 },
+    { name: "July", value: 7 },
+    { name: "August", value: 8 },
+    { name: "September", value: 9 },
+    { name: "October", value: 10 },
+    { name: "November", value: 11 },
+    { name: "December", value: 12 },
+  ];
+
+  const simulateBackendResponse =async (month, year) => {
+    // Simulated backend logic
+    const response = await analysis(month,year);
+    return response.data;
+  };
+    const fetchAllBudget = async()=>{
       try {
-        const res = await getAllBudget("65f025cfc3c561182e843dc0");
-        const formatted = res.data.map(item => ({
-          name: `${item.month}/${item.year}`,
-          income: item.totalIncome,
-          expense: item.totalExpense,
-          savings: item.savings,
-          categories: item.categories || []
-        }));
-
-        setBudgetData(formatted);
+        const response = await getAllBudget();
+        // dispatch(initAllBudget(response.data));
+        console.log(response.data);
+        
+        setAvailableBudget(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        alert(error.message);
       }
     };
 
-    fetchAnalytics();
-  }, []);
+  useEffect(()=>{
+    fetchAllBudget();
+  },[])
 
-  const latest = budgetData[budgetData.length - 1];
+  const handleCardClick = async(month, year) => {
+    setSelected({ month, year });
+    const data = await simulateBackendResponse(month, year);
+    setAnalysisData(data);
+  };
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full bg-white p-8 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+          Budget Analysis
+        </h1>
 
-      {/* Summary Cards */}
-      {latest && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-green-100 p-4 rounded-xl shadow">
-            <h2 className="text-green-800 font-semibold">Income</h2>
-            <p className="text-2xl font-bold">₹{latest.income}</p>
-          </div>
-          <div className="bg-red-100 p-4 rounded-xl shadow">
-            <h2 className="text-red-800 font-semibold">Expenses</h2>
-            <p className="text-2xl font-bold">₹{latest.expense}</p>
-          </div>
-          <div className="bg-blue-100 p-4 rounded-xl shadow">
-            <h2 className="text-blue-800 font-semibold">Savings</h2>
-            <p className="text-2xl font-bold">₹{latest.savings}</p>
+        {/* Budget Cards */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Available Budgets</h2>
+          <div className="flex overflow-x-auto space-x-4 p-2 border rounded-md">
+            {availableBudget.map((budget, index) => {
+              const monthName = months.find((m) => m.value === budget.month)?.name;
+              const isSelected =
+                selected.month === budget.month && selected.year === budget.year;
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleCardClick(budget.month, budget.year)}
+                  className={`min-w-[150px] px-4 py-2 rounded-lg shadow-sm text-center transition-transform duration-150 ${
+                    isSelected
+                      ? "bg-indigo-600 text-white"
+                      : "bg-indigo-100 text-indigo-700"
+                  } hover:scale-105`}
+                >
+                  <p className="font-semibold">{shortMonths[budget.month-1]}</p>
+                  <p>{budget.year}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      {/* Bar Chart */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Bar Chart - Monthly Overview</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={budgetData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="income" fill="#4ade80" />
-            <Bar dataKey="expense" fill="#f87171" />
-            <Bar dataKey="savings" fill="#60a5fa" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+        {/* Analysis Result */}
+        {analysisData && (
+          <div className="mt-8">
+            <p className="text-lg text-gray-700 mb-6">{analysisData.message}</p>
 
-      {/* Line Chart */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Line Chart - Income vs Expense Trend</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={budgetData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="income" stroke="#4ade80" strokeWidth={2} />
-            <Line type="monotone" dataKey="expense" stroke="#f87171" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-indigo-100 p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-semibold text-indigo-700 mb-4">Income</h2>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Actual: </span>${analysisData.analysis.income}
+                </p>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Budgeted: </span>${analysisData.analysis.budget_vs_actual.Income.budgeted}
+                </p>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Difference: </span>${analysisData.analysis.budget_vs_actual.Income.difference}
+                </p>
+              </div>
+
+              <div className="bg-red-100 p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-semibold text-red-700 mb-4">Expenses</h2>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Actual: </span>${analysisData.analysis.expenses}
+                </p>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Budgeted: </span>${analysisData.analysis.budget_vs_actual.Expense.budgeted}
+                </p>
+                <p className="text-lg text-gray-600">
+                  <span className="font-semibold">Difference: </span>${analysisData.analysis.budget_vs_actual.Expense.difference}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-green-100 p-6 rounded-lg shadow-md mt-6">
+              <h2 className="text-2xl font-semibold text-green-700 mb-4">Net Surplus</h2>
+              <p className="text-lg text-gray-600">
+                <span className="font-semibold">Net: </span>${analysisData.analysis.net}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

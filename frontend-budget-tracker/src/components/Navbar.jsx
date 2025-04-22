@@ -1,13 +1,18 @@
 import { Menu, LogOut } from "lucide-react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutSuccess } from "../Redux/userSclice";
 
 const Navbar = ({ toggleSidebar }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const user = {name : "kb"}
+    const user = useSelector(state=> state.user.user);
 
   const handleLogout = () => {
     console.log("User logged out");
-    // dispatch(logout());
+    dispatch(logoutSuccess());
     setTimeout(() => navigate("/login"), 0);
   };
 

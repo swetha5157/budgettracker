@@ -3,7 +3,7 @@ import axios from "axios";
 import { format, formatDate } from "date-fns";
 import {useDispatch} from 'react-redux'
 import { addTransaction, updateTransac } from "../Redux/Transaction";
-import { createTransaction, getAllTransaction, updateTransaction } from "../Service/TransactionService";
+import { createTransaction, deleteTransaction, getAllTransaction, updateTransaction } from "../Service/TransactionService";
 
 const Transactions = () => {
   // States for transaction data
@@ -65,7 +65,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await getAllTransaction("65f025cfc3c561182e843dc0");
+      const response = await getAllTransaction();
       // Ensure we're setting an array, even if the API returns something unexpected
       setTransactions(Array.isArray(response.data) ? response.data : []);
       setLoading(false);
@@ -80,12 +80,7 @@ const Transactions = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
-        const token = localStorage.getItem("token");
-        await axios.delete(`/api/transactions/${id}`, {
-          headers: {
-            // Authorization: `Bearer ${token}`,
-          },
-        });
+        await deleteTransaction(id);
         setTransactions((prev) =>
           Array.isArray(prev) ? prev.filter((t) => t._id !== id) : []
         );
@@ -114,13 +109,6 @@ const Transactions = () => {
     setFormError("");
 
     try {
-      const token = localStorage.getItem("token");
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
-        },
-      };
 
       if (isEditModalOpen && selectedTransaction) {
         try {
@@ -132,9 +120,7 @@ const Transactions = () => {
         }
         
       } else {
-        console.log("post...!",formData);
-        formData["userId"] = "65f025cfc3c561182e843dc0";
-        
+        console.log("post...!",formData);        
         const response = await createTransaction(formData);
         console.log(response);
         if(response.status===201){
