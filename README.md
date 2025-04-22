@@ -76,6 +76,10 @@ npm i
   - JWT_SECRET=your_jwt_secret
   - GEMINI_URL=your_gemini_api_key
 
+### AI tools used
+-Chatgpt
+-Gemini
+
 
 
 
