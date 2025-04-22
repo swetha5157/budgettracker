@@ -5,22 +5,22 @@ analyze monthly budgets
 
 ##  Features
 
-- ** Monthly Budget Creation**  
+- **Monthly Budget Creation**  
   Create a monthly budget with customizable categories and types (Income/Expense), and allocate specific amounts.
 
-- ** Category & Type Support**  
+- **Category & Type Support**  
   Each budget entry is categorized to help organize and analyze finances more effectively.
 
-- ** Transaction Management**  
+- **Transaction Management**  
   Log daily transactions with type (Income/Expense), category, and amount.
 
-- ** Real-Time Insights**  
+- **Real-Time Insights**  
   Visual graphs showing Expense vs Savings trends and overall monthly summary.
 
-- ** AI-Powered Budget Analysis**  
+- **AI-Powered Budget Analysis**  
   Integrated with **Gemini API** to analyze your financial behavior and suggest budgeting improvements.
 
-- ** Monthly Reports**  
+- **Monthly Reports**  
   Generate downloadable reports for the specified month with all transaction data to date.
 
 ---
@@ -73,7 +73,6 @@ cd backend-budget-tracker
 npm i
 ```
 ###  Create a .env file and store the following
-  - MONGO_URI=your_mongodb_connection_string
   - JWT_SECRET=your_jwt_secret
   - GEMINI_URL=your_gemini_api_key
 
